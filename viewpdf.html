@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMU Flipbook Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>HMU Flipbook Viewer</span>
+        </h1>
+        <div class="header-controls">
+            <div class="zoom-controls">
+                <button class="btn btn-secondary icon-only" id="zoom-out-btn" title="Zoom Out">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                </button>
+                <button class="btn btn-secondary icon-only" id="zoom-in-btn" title="Zoom In">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                </button>
+            </div>
+            <button class="btn btn-secondary" id="recent-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <span>Recent</span>
+            </button>
+            <button class="btn btn-primary" id="upload-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Upload PDF</span>
+            </button>
+            <button class="btn btn-secondary" id="share-btn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+                <span>Share</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flipbook-container">
+        <!-- New simple structure for page-flip -->
+        <div id="book">
+            <!-- Pages will be injected here -->
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Click "Upload PDF" to get started</p>
+        </div>
+    </main>
+
+    <button class="navigation nav-btn nav-left" id="prev-btn" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+    <button class="navigation nav-btn nav-right" id="next-btn" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+    </button>
+
+    <div class="page-indicator hidden" id="page-indicator">
+        <span id="current-pages">-</span> / <span id="total-pages">-</span>
+    </div>
+    </div>
+    </main>
+
+    <dialog id="upload-dialog">
+        <h2>Upload your PDF</h2>
+
+        <div class="upload-area" id="upload-area">
+            <input type="file" id="file-input" accept="application/pdf">
+            <p style="font-size: 3rem; margin-bottom: 1rem;">📄</p>
+            <p style="font-size: 1rem; color: var(--primary-color); font-weight: 600;">
+                Click to select a PDF file
+            </p>
+            <p style="font-size: 0.875rem; color: var(--text-color-light); margin-top: 0.5rem;">
+                or drag and drop a file here
+            </p>
+        </div>
+
+        <div class="url-input-group">
+            <p style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-color);">Or load from URL:</p>
+            <input type="text" id="url-input" placeholder="https://example.com/file.pdf">
+            <button class="btn btn-primary" id="load-url-btn" style="width: 100%;">
+                Load from URL
+            </button>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" id="close-upload-btn">
+                Close
+            </button>
+        </div>
+    </dialog>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>📂 PDFBook Library</h3>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-icon" id="clear-history-btn" title="Clear History">🗑️</button>
+                <button class="btn-icon" id="close-sidebar-btn">✕</button>
+            </div>
+        </div>
+        <div id="recent-books-list" class="book-list" style="flex-grow: 1; max-height: 40vh;">
+            <!-- Books will be injected here -->
+            <p style="color: var(--text-color-light); font-size: 0.9rem;">No recent books.</p>
+        </div>
+
+        <div class="sidebar-header" style="border-top: 1px solid var(--border-color); margin-top: auto;">
+            <h3>📚 Server Library</h3>
+        </div>
+        <div id="server-books-list" class="book-list" style="flex-grow: 1;">
+            <p style="color: var(--text-color-light); font-size: 0.9rem; padding: 1rem;">Loading...</p>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <dialog id="share-dialog">
+        <h2>Share & Embed</h2>
+
+        <div id="share-content-hosted">
+            <p style="margin-bottom: 0.5rem; color: var(--text-color-light);">Share Link:</p>
+            <div class="share-link-box" id="share-link"></div>
+
+            <p style="margin: 1.5rem 0 0.5rem; color: var(--text-color-light);">Embed Code:</p>
+            <div class="share-link-box" id="embed-code"></div>
+
+            <div class="qr-code">
+                <p style="margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color);">QR Code:</p>
+                <div id="qr-canvas"></div>
+            </div>
+        </div>
+
+        <div id="share-warning-local" class="hidden">
+            <div
+                style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid #ffeeba;">
+                <strong>⚠️ Local File Detected</strong><br>
+                To share this file or embed it, you must <strong>upload it to your server</strong> first.
+                Below are the links you <em>will</em> use after uploading.
+            </div>
+
+            <p style="margin-bottom: 0.5rem; color: var(--text-color-light);">Target Link (After Upload):</p>
+            <div class="share-link-box" id="template-share-link"></div>
+
+            <p style="margin-bottom: 0.5rem; color: var(--text-color-light);">Target Embed Code (After Upload):</p>
+            <div class="share-link-box" id="template-embed-code"></div>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" id="copy-link-btn">Copy Link</button>
+            <button class="btn btn-secondary" id="copy-embed-btn">Copy Embed</button>
+            <button class="btn btn-primary" id="close-share-btn">Close</button>
+        </div>
+    </dialog>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
